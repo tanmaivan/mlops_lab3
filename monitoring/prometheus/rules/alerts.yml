@@ -1,0 +1,56 @@
+groups:
+- name: api_alerts
+  rules:
+  - alert: HighErrorRate
+    expr: rate(prediction_errors_total[5m]) / rate(prediction_total[5m]) > 0.5
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "High error rate detected"
+      description: "Error rate is {{ $value | humanizePercentage }}"
+
+  - alert: LowConfidenceScore
+    expr: prediction_confidence < 0.6
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Low confidence score detected"
+      description: "Confidence score is {{ $value }}"
+
+  - alert: HighLatency
+    expr: histogram_quantile(0.95, rate(prediction_latency_seconds_bucket[5m])) > 1
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High latency detected"
+      description: "95th percentile latency is {{ $value }}s"
+
+  - alert: HighCPUUsage
+    expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU usage detected"
+      description: "CPU usage is {{ $value }}%"
+
+  - alert: HighMemoryUsage
+    expr: 100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High memory usage detected"
+      description: "Memory usage is {{ $value }}%"
+
+  - alert: LowDiskSpace
+    expr: 100 * (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Low disk space"
+      description: "Disk usage is {{ $value }}%"

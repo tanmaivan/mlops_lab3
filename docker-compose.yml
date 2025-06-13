@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+    api:
+        build: .
+        ports:
+            - "8000:8000"
+        volumes:
+            - ./models:/app/models
+            - ./logs:/app/logs
+        environment:
+            - MODEL_PATH=/app/models/model.pkl
+        networks:
+            - monitoring
+
+    prometheus:
+        image: prom/prometheus:v2.45.0
+        ports:
+            - "9090:9090"
+        volumes:
+            - ./monitoring/prometheus:/etc/prometheus
+            - prometheus_data:/prometheus
+        command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
+            - '--storage.tsdb.path=/prometheus'
+            - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+            - '--web.console.templates=/usr/share/prometheus/consoles'
+        networks:
+            - monitoring
+
+    alertmanager:
+        image: prom/alertmanager:v0.27.0
+        ports:
+            - "9093:9093"
+        volumes:
+            - ./monitoring/alertmanager:/etc/alertmanager
+        command:
+            - '--config.file=/etc/alertmanager/alertmanager.yml'
+            - '--storage.path=/alertmanager'
+        networks:
+            - monitoring
+
+    grafana:
+        image: grafana/grafana:latest
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./monitoring/grafana:/etc/grafana/provisioning
+            - grafana_data:/var/lib/grafana
+        environment:
+            - GF_SECURITY_ADMIN_USER=admin
+            - GF_SECURITY_ADMIN_PASSWORD=admin
+            - GF_USERS_ALLOW_SIGN_UP=false
+        networks:
+            - monitoring
+
+    node-exporter:
+        image: prom/node-exporter:v1.6.1
+        ports:
+            - "9100:9100"
+        volumes:
+            - /proc:/host/proc:ro
+            - /sys:/host/sys:ro
+            - /:/rootfs:ro
+        command:
+            - '--path.procfs=/host/proc'
+            - '--path.sysfs=/host/sys'
+            - '--path.rootfs=/rootfs'
+            - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+        networks:
+            - monitoring
+
+    cadvisor:
+        image: gcr.io/cadvisor/cadvisor:latest
+        ports:
+            - "8080:8080"
+        volumes:
+            - /:/rootfs:ro
+            - /var/run:/var/run:ro
+            - /sys:/sys:ro
+            - /var/lib/docker/:/var/lib/docker:ro
+            - /dev/disk/:/dev/disk:ro
+        restart: always
+        networks:
+            - monitoring
+
+    nvidia-dcgm-exporter:
+        image: nvidia/dcgm-exporter:latest
+        ports:
+            - "9400:9400"
+        environment:
+            - NVIDIA_VISIBLE_DEVICES=all
+        volumes:
+            - /var/run/dcgm:/var/run/dcgm
+        networks:
+            - monitoring
+
+    fluentd:
+        image: fluent/fluentd:v1.16
+        ports:
+            - "24224:24224"
+            - "24224:24224/udp"
+            - "5140:5140"
+        volumes:
+            - ./monitoring/fluentd/conf:/fluentd/etc
+            - ./logs:/fluentd/log
+        environment:
+            - FLUENTD_CONF=fluent.conf
+        restart: always
+        networks:
+            - monitoring
+
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+        environment:
+            - discovery.type=single-node
+            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+        ports:
+            - "9200:9200"
+        volumes:
+            - elasticsearch_data:/usr/share/elasticsearch/data
+        restart: always
+        networks:
+            - monitoring
+
+volumes:
+    prometheus_data:
+    grafana_data:
+    elasticsearch_data:
+
+networks:
+    monitoring:
+        driver: bridge

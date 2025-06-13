@@ -1,0 +1,68 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Logs
+logs/
+*.log
+
+# Data
+data/
+*.csv
+*.json
+!requirements.json
+
+# Model files
+models/
+*.pkl
+*.h5
+*.model
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prometheus data
+prometheus-2.45.0.linux-amd64/data/
+monitoring/prometheus/data/
+
+# Alertmanager data
+alertmanager-0.27.0.linux-amd64/data/
+
+# Node Exporter data
+node_exporter-1.6.1.linux-amd64/data/
+
+# Grafana data
+grafana/data/
+
+# MLflow
+mlruns/
+mlflow.db
+mlartifacts/
+
+# Metaflow
+.metaflow/
+metaflow_card_cache/
+
+# Large binary files
+*.tar.gz
+prometheus-2.45.0.linux-amd64/
+alertmanager-0.27.0.linux-amd64/
+node_exporter-1.6.1.linux-amd64/
+
