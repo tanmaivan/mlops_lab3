@@ -50,6 +50,7 @@ node_exporter-1.6.1.linux-amd64/data/
 
 # Grafana data
 grafana/data/
+!monitoring/dashboards/
 
 # MLflow
 mlruns/

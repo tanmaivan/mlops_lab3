@@ -140,6 +140,9 @@ sudo systemctl stop grafana-server
 ├── data/               # Dữ liệu training
 ├── logs/              # Log files
 ├── monitoring/        # Cấu hình Prometheus và Alertmanager
+│   ├── dashboards/   # Grafana dashboard JSON files
+│   ├── prometheus.yml # Cấu hình Prometheus
+│   └── alertmanager.yml # Cấu hình Alertmanager
 ├── models/           # Model đã train
 ├── src/              # Source code
 │   ├── api.py        # FastAPI application
