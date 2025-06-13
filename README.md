@@ -1,5 +1,5 @@
 # MLOps Lab 02 - Monitoring and Logging
-
+demo: https://youtu.be/G5dKctv_khQ
 ## 1. Cài đặt môi trường
 
 ### 1.1. Yêu cầu hệ thống
